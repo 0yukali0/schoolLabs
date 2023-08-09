@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tensor-rt-exe
+  labels:
+    queue: "root.sandbox"
+spec:
+  schedulerName: yunikorn
+  containers:
+  - image: dustynv/jetson-inference:r32.6.1
+    imagePullPolicy: Never
+    securityContext:
+      privileged: true
+    command: ["python3", "/jetson-inference/build/aarch64/bin/imagenet-camera.py", "--camera=/dev/video0"]
+    name: ai-exe
+    env:
+      - name: FILESDIR
+        valueFrom:
+          configMapKeyRef:
+            name: tensorrt-config
+            key: FILEPATH
+      - name: FILE
+        valueFrom:
+          configMapKeyRef:
+            name: tensorrt-config
+            key: FILENAME
+      - name: C
+        valueFrom:
+          configMapKeyRef:
+            name: tensorrt-config
+            key: CAMERA
+    volumeMounts:
+    - mountPath: /dev
+      name: devices
+    - mountPath: /jetson-inference/data
+      name: data
+    - mountPath: /jetson-inference/classification
+      name: classification
+    - mountPath: /jetson-inference/ssd
+      name: ssd
+    - mountPath: /tensorrt-config
+      name: setting
+    - mountPath: /jetson-inference/code
+  volumes:
+  - name: devices
+    hostPath:
+      path: /dev
+      type: Directory
+  - name: data
+    hostPath:
+      path: /jetson-inference/data
+      type: Directory
+  - name: classification
+    hostPath:
+      path: /jetson-inference/python/training/classification
+      type: Directory
+  - name: ssd
+    hostPath:
+      path: /jetson-inference/python/training/detection/ssd
+      type: Directory
+  - name: mycode
+    hostPath:
+      path: /home/user/jetson-inference/build/aarch64/bin/my-recognition
+      type: Directory
+  - name: setting
+    configMap:
+      name: tensorrt-config
+

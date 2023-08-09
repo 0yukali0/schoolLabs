@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tensorrt-config
+  namespace: default
+data:
+  FILEPATH: /jetson-inference/build/aarch64/bin
+  FILENAME: imagenet-camera.py 
+  CAMERA: /dev/video0
+  BOUND: "5"
